@@ -2,7 +2,7 @@ import os
 from langchain_core.output_parsers import StrOutputParser
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
-os.environ["BAICHUAN_API_KEY"] = "sk-9f49f0ab458f315060b62583125cbba7"
+os.environ["BAICHUAN_API_KEY"] = ""
 
 from langchain_community.llms.baichuan import BaichuanLLM
 
