@@ -7,7 +7,6 @@ sudo sh -c 'echo "deb https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
 sudo apt-get update
 sudo apt install postgresql postgresql-contrib postgresql-server-dev-14
-sudo apt install  postgresql-server-dev-14
 sudo apt install  postgresql-server-dev-16
 
 # 检查运行状态
@@ -38,4 +37,8 @@ sudo apt-get -y install postgresql
 sudo apt-get upgrade libpq-dev
 
 
-ALTER USER postgres PASSWORD 'myPassword';
+ALTER USER postgres PASSWORD '123456';
+
+
+wget http://es.archive.ubuntu.com/ubuntu/pool/main/libf/libffi/libffi7_3.3-4_amd64.deb
+sudo dpkg -i libffi7_3.3-4_amd64.deb

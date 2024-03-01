@@ -52,4 +52,4 @@ print(html_header_splits)
 
 ##web  提取title 和内容   对应合适网页 也可以设置 h1 h2
 
-##pdf 解决方案 根据文档正则化 或者根据字体大小确定
+

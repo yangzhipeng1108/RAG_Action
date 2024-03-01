@@ -1,28 +1,5 @@
-from pgvector.psycopg2 import register_vector
-import psycopg2
-from FlagEmbedding import FlagModel
 
-conn = psycopg2.connect(
-    host="localhost",
-    port=5432,
-    database="vector_demo",
-    user="postgres",
-    password="123456",
-)
-
-query = '银汉智算平台采用是什么存储系统'
-
-cur = conn.cursor()
-
-model = FlagModel('BAAI/bge-large-zh-v1.5',
-                  query_instruction_for_retrieval="为这个句子生成表示以用于检索相关文章：",
-                  use_fp16=True)  # Setting use_fp16 to True speeds up computation with a slight performance degradation
-
-query_embeddings = str(list(model.encode(query)))
-
-
-
-def pg_qa_bge_retrieval(query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5):
+def pg_qa_bge_retrieval(cur,query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5):
     # 欧几里德距离
     query_result = {}
     query_limit = str(query_limit)
@@ -57,7 +34,7 @@ def pg_qa_bge_retrieval(query_embeddings,inquiry_mode='euclidean_distance',query
     return  query_result
 
 
-def pg_answer_bge_retrieval(query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5):
+def pg_answer_bge_retrieval(cur,query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5):
     # 欧几里德距离
     query_result = {}
     query_limit = str(query_limit)
@@ -92,7 +69,7 @@ def pg_answer_bge_retrieval(query_embeddings,inquiry_mode='euclidean_distance',q
     return query_result
 
 
-def pg_subdocument_bge_retrieval(query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5):
+def pg_subdocument_bge_retrieval(cur,query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5):
     # 欧几里德距离
     query_result = {}
     query_limit = str(query_limit)
@@ -127,7 +104,7 @@ def pg_subdocument_bge_retrieval(query_embeddings,inquiry_mode='euclidean_distan
     return query_result
 
 
-def pg_document_bge_retrieval(query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5,fusion='sum'):
+def pg_document_bge_retrieval(cur,query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5,fusion='sum'):
     # 欧几里德距离
     title_json = {}
     title_score = {}
@@ -185,7 +162,7 @@ def pg_document_bge_retrieval(query_embeddings,inquiry_mode='euclidean_distance'
     return query_result
 
 
-def pg_keyword_subdocument_bge_retrieval(query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5,fusion='sum'):
+def pg_keyword_subdocument_bge_retrieval(cur,query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5,fusion='sum'):
     # 欧几里德距离
     title_json = {}
     title_score = {}
@@ -244,7 +221,7 @@ def pg_keyword_subdocument_bge_retrieval(query_embeddings,inquiry_mode='euclidea
 
 
 
-def pg_keyword_document_bge_retrieval(query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5,fusion='sum'):
+def pg_keyword_document_bge_retrieval(cur,query_embeddings,inquiry_mode='euclidean_distance',query_limit = 5,fusion='sum'):
     # 欧几里德距离
     title_json = {}
     title_score = {}
@@ -301,9 +278,3 @@ def pg_keyword_document_bge_retrieval(query_embeddings,inquiry_mode='euclidean_d
 
     return query_result
 
-
-# 关闭游标
-cur.close()
-
-# 关闭连接
-conn.close()

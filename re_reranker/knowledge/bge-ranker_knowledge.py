@@ -95,8 +95,8 @@ print(scores)
 import torch
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 
-tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-large-zh-v1.5',trust_remote_code=True)
-model = AutoModelForSequenceClassification.from_pretrained('BAAI/bge-large-zh-v1.5',trust_remote_code=True)
+tokenizer = AutoTokenizer.from_pretrained('BAAI/bge-reranker-large')
+model = AutoModelForSequenceClassification.from_pretrained('BAAI/bge-reranker-large')
 model.eval()
 
 pairs = [['what is panda?', 'hi'], ['what is panda?', 'The giant panda (Ailuropoda melanoleuca), sometimes called a panda bear or simply panda, is a bear species endemic to China.']]

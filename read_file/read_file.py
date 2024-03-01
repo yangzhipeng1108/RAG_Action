@@ -5,40 +5,7 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 import re
 from typing import List
 import sys
-
-
-
-path = 'E:/python/yovole/NLP/pre-train/ai_project/yovole/'
-#文本加载
-loader = TextLoader(path + "source/ai/ai/html/activate.md",encoding='UTF-8')
-# loader = UnstructuredMarkdownLoader("source/ai/ai/html/activate.md",encoding='UTF-8')
-
-# loader = TextLoader(path + "source/ai/ai/html/file_storage.md",encoding='UTF-8')
-result = loader.load()
-
-
-#md分割
-headers_to_split_on = [
-    ("#", "Header 1"),
-    ("##", "Header 2"),
-    ("###", "Header 3"),
-]
-
-markdown_splitter = MarkdownHeaderTextSplitter(
-    headers_to_split_on=headers_to_split_on
-)
-md_header_splits = markdown_splitter.split_text(result[0].page_content)
-
-result_dict = {}
-for i in md_header_splits:
-    key = ' '.join(i.metadata.values())
-    a=r'\{.*?\}'
-    value = re.sub(a, '', i.page_content)
-    a=r'\}\}'
-    value = re.sub(a, '', value)
-    a = r'<[^>]+>'
-    result_dict[key] = re.sub(a, '', value)
-
+import  os
 
 
 #更细粒度分割  RecursiveCharacterTextSplitter
@@ -123,41 +90,87 @@ class ChineseRecursiveTextSplitter(RecursiveCharacterTextSplitter):
             final_chunks.extend(merged_text)
         return [re.sub(r"\n{2,}", "\n", chunk.strip()) for chunk in final_chunks if chunk.strip()!=""]
 
-crts = ChineseRecursiveTextSplitter(chunk_size=10 ,chunk_overlap=1)
 
-for key in result_dict.keys():
-    value = result_dict[key]
-    text_inter_list = crts.split_text(value)
-    text_inter = ''.join(list(filter(lambda x: False if x == '-'  else True,text_inter_list)))
-    result_dict[key] = text_inter
-print(result_dict)
 
-crts = ChineseRecursiveTextSplitter(chunk_size=80 ,chunk_overlap=10)
+def read_file(path):
 
-Subdocument_result_dict = {}
-for key in result_dict.keys():
-    if '||' in result_dict[key]:
-        text_inter_list = result_dict[key].split('||')
+    #文本加载
+    loader = TextLoader(path,encoding='UTF-8')
+    # loader = UnstructuredMarkdownLoader("source/ai/ai/html/activate.md",encoding='UTF-8')
 
-        # sentence_inter_list = [' '.join(i.split('|'))  if '---' not  in i else False  for i in text_inter_list]
+    # loader = TextLoader(path + "source/ai/ai/html/file_storage.md",encoding='UTF-8')
+    result = loader.load()
 
-        sentence_inter_list = []
-        centent_list = [i.strip() for i in text_inter_list[0].split('|')]
 
-        for i in text_inter_list[1:]:
-            if '--' in i :
-                continue
-            text_list = i.split('|')
-            sentence_inter_list.append('    '.join([' '.join([i,j.strip()]) for i,j in zip(centent_list[1:],text_list)]))
+    #md分割
+    headers_to_split_on = [
+        ("#", "Header 1"),
+        ("##", "Header 2"),
+        ("###", "Header 3"),
+    ]
 
-        Subdocument_result_dict[key] = sentence_inter_list
-        result_dict[key] = ' '.join(sentence_inter_list)
-    else:
+    markdown_splitter = MarkdownHeaderTextSplitter(
+        headers_to_split_on=headers_to_split_on
+    )
+    md_header_splits = markdown_splitter.split_text(result[0].page_content)
+
+
+    result_dict = {}
+    for i in md_header_splits:
+        key = ' '.join(i.metadata.values())
+        a=r'\{.*?\}'
+        value = re.sub(a, '', i.page_content)
+        a=r'\}\}'
+        value = re.sub(a, '', value)
+        a = r'<[^>]+>'
+        result_dict[key] = re.sub(a, '', value)
+
+
+    crts = ChineseRecursiveTextSplitter(chunk_size=10 ,chunk_overlap=1)
+
+    for key in result_dict.keys():
         value = result_dict[key]
         text_inter_list = crts.split_text(value)
-        Subdocument_result_dict[key] = text_inter_list
+        text_inter = ''.join(list(filter(lambda x: False if x == '-'  else True,text_inter_list)))
+        result_dict[key] = text_inter
 
-print(Subdocument_result_dict)
-print(result_dict)
+    crts = ChineseRecursiveTextSplitter(chunk_size=80 ,chunk_overlap=10)
 
+    Subdocument_result_dict = {}
+    for key in result_dict.keys():
+        if '||' in result_dict[key]:
+            text_inter_list = result_dict[key].split('||')
+
+            # sentence_inter_list = [' '.join(i.split('|'))  if '---' not  in i else False  for i in text_inter_list]
+
+            sentence_inter_list = []
+            centent_list = [i.strip() for i in text_inter_list[0].split('|')]
+
+            for i in text_inter_list[1:]:
+                if '--' in i :
+                    continue
+                text_list = i.split('|')
+                sentence_inter_list.append('    '.join([' '.join([i,j.strip()]) for i,j in zip(centent_list[1:],text_list)]))
+
+            Subdocument_result_dict[key] = sentence_inter_list
+            result_dict[key] = ' '.join(sentence_inter_list)
+        else:
+            value = result_dict[key]
+            text_inter_list = crts.split_text(value)
+            Subdocument_result_dict[key] = text_inter_list
+
+    with open('Subdocument_result_dict.txt', 'a+',encoding='utf-8') as f:
+        f.write(str(Subdocument_result_dict) +  '\n')  # 加\n换行显示
+
+    with open('document_result_dict.txt', 'a+',encoding='utf-8') as f:
+        f.write(str(result_dict) +  '\n')  # 加\n换行显示
+
+
+
+base = 'E:/python/yovole/NLP/pre-train/ai_project/yovole/source/ai/ai/html/platform'
+for root, ds, fs in os.walk(base):
+    for f in fs:
+        if f.endswith('.md'):
+            fullname = os.path.join(root, f)
+            read_file(fullname)
 
